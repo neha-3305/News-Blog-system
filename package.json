@@ -1,0 +1,37 @@
+{
+  "name": "news-blog-system",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/neha-3305/News-Blog-system.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/neha-3305/News-Blog-system/issues"
+  },
+  "homepage": "https://github.com/neha-3305/News-Blog-system#readme",
+  "dependencies": {
+    "bcryptjs": "^3.0.3",
+    "connect-flash": "^0.1.1",
+    "cookie-parser": "^1.4.7",
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "express-ejs-layouts": "^2.5.1",
+    "express-session": "^1.19.0",
+    "jsonwebtoken": "^9.0.3",
+    "mongoose": "^9.7.4",
+    "mongoose-paginate-v2": "^1.9.5",
+    "multer": "^2.2.0",
+    "nodemon": "^3.1.14",
+    "slugify": "^1.6.9"
+  }
+}

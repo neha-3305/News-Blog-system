@@ -1,0 +1,28 @@
+const mongoose = require("mongoose");
+const slugify = require("slugify");
+
+const categorySchema = new mongoose.Schema({
+  name: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  desciption: {
+    type: String,
+  },
+  slug: {
+    type: String,
+    required: true,
+    unique: true,
+  },
+  timestamps: {
+    type: Date,
+    default: Date.now,
+  },
+});
+
+categorySchema.pre("validate", function () {
+  this.slug = slugify(this.name, { lower: true });
+});
+
+module.exports = mongoose.model("Category", categorySchema);
