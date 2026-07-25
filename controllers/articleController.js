@@ -1,6 +1,8 @@
 const categoryModel = require("../models/Category");
 const newsModel = require("../models/News");
 const userModel = require("../models/User");
+const fs = require("fs");
+const path = require("path");
 
 const allArticle = async (req, res) => {
   // populate join query like
@@ -90,6 +92,13 @@ const updateArticle = async (req, res) => {
     article.content = content;
     article.category = category;
     if (req.file) {
+      // old image delete on server
+      const imagepath = path.join(
+        __dirname,
+        "../public/uploads",
+        article.image
+      );
+      fs.unlinkSync(imagepath);
       article.image = req.file.filename;
     }
     await article.save();
@@ -110,6 +119,18 @@ const deleteArticle = async (req, res) => {
       if (req.id != article.author._id) {
         return res.status(401).send("Unauthorized");
       }
+    }
+
+    try {
+      // old image delete on server
+      const imagepath = path.join(
+        __dirname,
+        "../public/uploads",
+        article.image
+      );
+      fs.unlinkSync(imagepath);
+    } catch (err) {
+      console.err("Error deleting image: ", err);
     }
 
     await article.deleteOne();

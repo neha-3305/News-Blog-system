@@ -2,12 +2,16 @@ const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const dotenv = require("dotenv");
 const userModel = require("../models/User");
+const newsModel = require("../models/News");
+const categoryModel = require("../models/Category");
+const Setting = require("../models/Setting");
 
 dotenv.config();
 
 const loginPage = async (req, res) => {
   res.render("admin/login", { layout: false });
 };
+
 const adminLogin = async (req, res) => {
   const { username, password } = req.body;
   try {
@@ -36,12 +40,58 @@ const logout = async (req, res) => {
   res.clearCookie("token");
   res.redirect("/admin/");
 };
+
 const dashboard = async (req, res) => {
-  res.render("admin/dashboard", { role: req.role, fullname: req.fullname });
+  try {
+    let articlecount;
+    if (req.role == "author") {
+      articlecount = await newsModel.countDocuments({ author: req.id });
+    } else {
+      articlecount = await newsModel.countDocuments();
+    }
+
+    const categorycount = await categoryModel.countDocuments();
+    const usercount = await userModel.countDocuments();
+
+    res.render("admin/dashboard", {
+      role: req.role,
+      fullname: req.fullname,
+      articlecount,
+      categorycount,
+      usercount,
+    });
+  } catch (err) {
+    consol.log(err);
+    res.status(500).send("Internal Server Error");
+  }
 };
 
 const settings = async (req, res) => {
-  res.render("admin/settings", { role: req.role });
+  try {
+    const settings = await Setting.findOne();
+    res.render("admin/settings", { role: req.role, settings });
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
+};
+
+const saveSettings = async (req, res) => {
+  // save in database
+  const { website_title, footer_description } = req.body;
+  const website_logo = req.file ? req.file.filename : null;
+
+  try {
+    const settings = await Setting.findOneAndUpdate(
+      {},
+      { website_title, website_logo, footer_description },
+      { returnDocument: "after", upsert: true }
+    );
+    res.redirect("/admin/settings");
+  } catch (err) {
+    console.log(err);
+    res.status(500).send("Internal Server Error");
+  }
 };
 
 const alluser = async (req, res) => {
@@ -110,6 +160,7 @@ module.exports = {
   logout,
   dashboard,
   settings,
+  saveSettings,
   alluser,
   addUserPage,
   addUser,
