@@ -9,53 +9,51 @@ const addCategoryPage = async (req, res) => {
   res.render("admin/categories/create", { role: req.role });
 };
 
-const addCategory = async (req, res) => {
-  //console.log(req.body);
+const addCategory = async (req, res, next) => {
   try {
     await categoryModel.create(req.body);
     res.redirect("/admin/category");
   } catch (error) {
-    res.status(400).send(error);
+    next(error);
   }
 };
-const updateCategoryPage = async (req, res) => {
+const updateCategoryPage = async (req, res, next) => {
   const id = req.params.id;
   try {
     const category = await categoryModel.findById(id);
     if (!category) {
-      return res.status(404).send("Categpory not found");
+      return next(createError("Category noy found", 404));
     }
     res.render("admin/categories/update", { category, role: req.role });
   } catch (err) {
-    console.log(err);
+    next(err);
   }
 };
-const updateCategory = async (req, res) => {
+const updateCategory = async (req, res, next) => {
   const id = req.params.id;
   try {
     const category = await categoryModel.findByIdAndUpdate(id, req.body);
     if (!category) {
-      return res.status(400).send("Category not found");
+      return next(createError("Category noy found", 404));
     }
     res.redirect("/admin/category");
   } catch (err) {
-    res.status(400).send(err);
+    next(err);
   }
 };
-const deleteCategory = async (req, res) => {
+const deleteCategory = async (req, res, next) => {
   const id = req.params.id;
   console.log(id);
   try {
     const category = await categoryModel.findByIdAndDelete(id);
 
     if (!category) {
-      res.status(404).send("Category not found");
+      return next(createError("Category noy found", 404));
     }
     res.json({ success: true });
     //res.redirect("/admin/category");
   } catch (err) {
-    console.log(err);
-    res.status(400).send(err);
+    next(err);
   }
 };
 

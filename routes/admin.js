@@ -102,4 +102,43 @@ router.delete(
 // Comment Routes
 router.get("/comments", isLoggedIn, commentController.allComment);
 
+// 404 Middleware
+router.use((req, res, next) => {
+  res.status(404).render("admin/404", {
+    message: "Page not found",
+    role: req.role,
+  });
+});
+
+// 500 Error Handler
+router.use(isLoggedIn, (err, req, res, next) => {
+  console.error(err.stack);
+  const status = err.status || 500;
+  let view;
+  switch (status) {
+    case 404:
+      view = "admin.404";
+      break;
+    case 500:
+      view = "admin/500";
+      break;
+    case 401:
+      view = "";
+      break;
+    default:
+      view = "admin/500";
+  }
+  // const view = status === 404 ? "admin/404" : "admin/500";
+  res.status(status).render(view, {
+    message: err.message || "Something went wrong",
+    role: req.role,
+  });
+});
+
+// router.use(isLoggedIn, (err, req, res, next) => {
+//   res.status(500).render("admin/500", {
+//     message: err.message || "Internal Server Error",
+//     role: req.role,
+//   });
+// });
 module.exports = router;

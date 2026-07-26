@@ -12,17 +12,17 @@ const loginPage = async (req, res) => {
   res.render("admin/login", { layout: false });
 };
 
-const adminLogin = async (req, res) => {
+const adminLogin = async (req, res, next) => {
   const { username, password } = req.body;
   try {
     const user = await userModel.findOne({ username });
     if (!user) {
-      return res.status(401).send("Invalid Username or password");
+      return next(createError("Invalid Username or password", 401));
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(401).send("Invalid username or Password");
+      return next(createError("Invalid Username or password", 401));
     }
 
     const jwtData = { id: user._id, fullname: user.fullname, role: user.role };
@@ -32,7 +32,7 @@ const adminLogin = async (req, res) => {
     res.cookie("token", token, { httpOnly: true, maxAge: 60 * 60 * 1000 });
     res.redirect("/admin/dashboard");
   } catch (error) {
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 };
 
@@ -41,7 +41,7 @@ const logout = async (req, res) => {
   res.redirect("/admin/");
 };
 
-const dashboard = async (req, res) => {
+const dashboard = async (req, res, next) => {
   try {
     let articlecount;
     if (req.role == "author") {
@@ -61,18 +61,16 @@ const dashboard = async (req, res) => {
       usercount,
     });
   } catch (err) {
-    consol.log(err);
-    res.status(500).send("Internal Server Error");
+    next(err);
   }
 };
 
-const settings = async (req, res) => {
+const settings = async (req, res, next) => {
   try {
     const settings = await Setting.findOne();
     res.render("admin/settings", { role: req.role, settings });
   } catch (err) {
-    console.log(err);
-    res.status(500).send("Internal Server Error");
+    next(err);
   }
 };
 
@@ -89,8 +87,7 @@ const saveSettings = async (req, res) => {
     );
     res.redirect("/admin/settings");
   } catch (err) {
-    console.log(err);
-    res.status(500).send("Internal Server Error");
+    next(err);
   }
 };
 
@@ -106,26 +103,25 @@ const addUser = async (req, res) => {
   res.redirect("/admin/users");
 };
 
-const updateUserPage = async (req, res) => {
+const updateUserPage = async (req, res, next) => {
   const id = req.params.id;
   try {
     const user = await userModel.findById(id);
     if (!user) {
-      return res.status(404).send("user not found");
+      return next(createError("User noy found", 404));
     }
     res.render("admin/users/update", { user, role: req.role });
   } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 };
-const updateUser = async (req, res) => {
+const updateUser = async (req, res, next) => {
   const id = req.params.id;
   const { fullname, password, role } = req.body;
   try {
     const user = await userModel.findById(id);
     if (!user) {
-      return res.status(404).send("user not found");
+      return next(createError("User noy found", 404));
     }
     user.fullname = fullname || user.fullname;
     if (password) {
@@ -136,21 +132,19 @@ const updateUser = async (req, res) => {
 
     res.redirect("/admin/users");
   } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 };
-const deleteUser = async (req, res) => {
+const deleteUser = async (req, res, next) => {
   const id = req.params.id;
   try {
     const user = await userModel.findByIdAndDelete(id);
     if (!user) {
-      return res.status(404).send("user not found");
+      return next(createError("User noy found", 404));
     }
     res.json({ success: true });
   } catch (error) {
-    console.log(error);
-    res.status(500).send("Internal Server Error");
+    next(error);
   }
 };
 
