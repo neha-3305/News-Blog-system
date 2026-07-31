@@ -4,4 +4,4 @@ function createError(message, status = 500) {
   return next(error);
 }
 
-module.export = createError;
+module.exports = createError;

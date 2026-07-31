@@ -8,10 +8,11 @@ const commentController = require("../controllers/commentController");
 const isLoggedIn = require("../middleware/isLoggedin");
 const isAdmin = require("../middleware/idAdmin");
 const upload = require("../middleware/multer");
+const isValid = require("../middleware/validation");
 
 //Login Routes
 router.get("/", userController.loginPage);
-router.post("/index", userController.adminLogin);
+router.post("/index", isValid.loginValidation, userController.adminLogin);
 router.get("/logout", userController.logout);
 router.get("/dashboard", isLoggedIn, userController.dashboard);
 router.get("/settings", isLoggedIn, isAdmin, userController.settings);
@@ -26,14 +27,26 @@ router.post(
 //User CRUD Routes
 router.get("/users", isLoggedIn, isAdmin, userController.alluser);
 router.get("/add-user", isLoggedIn, isAdmin, userController.addUserPage);
-router.post("/add-user", isLoggedIn, isAdmin, userController.addUser);
+router.post(
+  "/add-user",
+  isValid.userValidation,
+  isLoggedIn,
+  isAdmin,
+  userController.addUser
+);
 router.get(
   "/update-user/:id",
   isLoggedIn,
   isAdmin,
   userController.updateUserPage
 );
-router.post("/update-user/:id", isLoggedIn, isAdmin, userController.updateUser);
+router.post(
+  "/update-user/:id",
+  isValid.userUpdateValidation,
+  isLoggedIn,
+  isAdmin,
+  userController.updateUser
+);
 router.delete(
   "/delete-user/:id",
   isLoggedIn,
@@ -51,6 +64,7 @@ router.get(
 );
 router.post(
   "/add-category",
+  isValid.categoryValidation,
   isLoggedIn,
   isAdmin,
   categoryController.addCategory
@@ -63,6 +77,7 @@ router.get(
 );
 router.post(
   "/update-category/:id",
+  isValid.categoryValidation,
   isLoggedIn,
   isAdmin,
   categoryController.updateCategory
@@ -75,11 +90,17 @@ router.delete(
 
 //Article CRUD Routes
 router.get("/article", isLoggedIn, articleController.allArticle);
-router.get("/add-article", isLoggedIn, articleController.addArticlePage);
+router.get(
+  "/add-article",
+
+  isLoggedIn,
+  articleController.addArticlePage
+);
 router.post(
   "/add-article",
   isLoggedIn,
   upload.single("image"),
+  isValid.articleValidation,
   articleController.addArticle
 );
 router.get(
@@ -91,6 +112,7 @@ router.post(
   "/update-article/:id",
   isLoggedIn,
   upload.single("image"),
+  isValid.articleValidation,
   articleController.updateArticle
 );
 router.delete(

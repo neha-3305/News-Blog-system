@@ -44,9 +44,15 @@
       if(confirm("Are you sure you want to delete this Category?")){
         const response = await fetch(`/admin/delete-category/${id}`, {
           method: 'delete'
-        }); 
+        });
+
         if(response.ok){
           window.location.reload();
+        }
+
+        if(response.status == 400){
+          const data = await response.json();
+          alert(data.message);
         }
       }
     }
@@ -58,4 +64,3 @@
 
 <%- contentFor('tabulatorCSS') %>
 <link href="https://unpkg.com/tabulator-tables@6.5.0/dist/css/tabulator.min.css" rel="stylesheet">
-<link href="/css/tabulator_bootstrap5.min.css" rel="stylesheet">
